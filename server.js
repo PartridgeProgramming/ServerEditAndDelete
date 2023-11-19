@@ -20,6 +20,7 @@ let rockets = [{
         payload_capacity_kg: 63800,
         propellant_type: "liquid",
         successful_launches: 4,
+        img: "falcon_heavy.jpg",
         launch_sites: ["Kennedy Space Center",
         "Vandenberg Space Force Base"],
     },
@@ -30,6 +31,7 @@ let rockets = [{
         payload_capacity_kg: 20600,
         propellant_type: "liquid",
         successful_launches: 86,
+        img: "atlas_v.jpg",
         launch_sites: ["Cape Canaveral Space Force Station",
         "Vandenberg Space Force Base"]
     },
@@ -40,6 +42,7 @@ let rockets = [{
         payload_capacity_kg: 28800,
         propellant_type: "liquid",
         successful_launches: 12,
+        img: "delta_iv_heavy.jpg",
         launch_sites: ["Cape Canaveral Space Force Station"]
     },
     {
@@ -49,6 +52,7 @@ let rockets = [{
         payload_capacity_kg: 95000,
         propellant_type: "liquid",
         successful_launches: 0,
+        img: "sls.jpg",
         launch_sites: ["Kennedy Space Center"]
     },
     {
@@ -58,6 +62,7 @@ let rockets = [{
         payload_capacity_kg: 45000,
         propellant_type: "liquid",
         successful_launches: 0,
+        img: "new_glenn.jpg",
         launch_sites: ["Cape Canaveral Space Force Station"]
     },
     {
@@ -67,6 +72,7 @@ let rockets = [{
         payload_capacity_kg: 100000,
         propellant_type: "liquid",
         successful_launches: 0,
+        img: "starship.jpg",
         launch_sites: ["Boca Chica, Texas"]
 }];
 
@@ -93,8 +99,54 @@ app.post("/api/rockets", upload.single("img"), (req, res) => {
         launch_sites: req.body.launch_sites.split(".")
     }
 
+    if (req.file) {
+        rocket.img = "images/" + req.file.filename;
+    }
+
     rockets.push(rocket);
     res.send(rockets);
+});
+
+app.put("/api/rockets/:id", upload.single("img"), (req, res) => {
+    const id = parseInt(req.params.id);
+
+    const rocket = rockets.find((r) => r._id === id);
+
+    const result = validateRocket(req.body);
+    
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message);
+        return;
+    }
+
+    rocket.name = req.body.name;
+    rocket.company = req.body.company;
+    rocket.payload_capacity_kg = req.body.payload_capacity_kg;
+    rocket.propellant_type = req.body.propellant_type;
+    rocket.successful_launches = req.body.successful_launches;
+    rocket.launch_sites = req.body.launch_sites.split(".");
+    
+    if (req.file) {
+        rocket.img = "images/" + req.file.filename;
+    }
+
+    res.send(rocket);
+});
+
+app.delete("/api/rockets/:id", upload.single("img"), (req, res) => {
+    const id = parseInt(req.params.id);
+
+    const rocket = rockets.find((r) => r._id === id);
+
+    if (!rocket) {
+        res.status(404).send("The rocket was not found");
+        return;
+    }
+
+    const index = rockets.indexOf(rocket);
+    rockets.splice(index, 1);
+    res.send(rocket);
+
 });
 
 const validateRocket = (rocket) => {

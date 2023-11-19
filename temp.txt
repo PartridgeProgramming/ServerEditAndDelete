@@ -45,3 +45,31 @@ const validateRocket = (rocket) => {
 
     return schema.validate(rocket);
 }
+
+
+    try {
+        // Checking if it's a new rocket (based on _id)
+        if (form._id.value === "-1") {
+            formData.delete("_id");
+            formData.delete("img");
+
+            const sites = getSites().join("."); // Join the sites with a period
+            formData.set("launch_sites", sites); // Set the launch_sites field with the joined sites
+
+            console.log(...formData);
+            
+            response = await fetch("/api/rockets", {
+                method: "POST",
+                body: formData
+            });
+
+            response = await response.json();
+            }
+
+            showRockets();
+    }
+    catch (error) {
+        const errorMessage = document.getElementById("error-message");
+        errorMessage.innerHTML = "There was an error with submission.";
+        console.log(error);
+    }
