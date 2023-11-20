@@ -78,6 +78,7 @@ const displayDetails = (rocket) => {
 
     dLink.onclick = (e) => {
         e.preventDefault();
+        deleteRocket(rocket);
     };
 
     populateEditForm(rocket);
